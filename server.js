@@ -3,6 +3,7 @@ const app = express();
 const dotenv = require("dotenv");
 dotenv.config();
 const cors = require("cors");
+const fileUpload = require('express-fileupload');
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -18,6 +19,7 @@ const orderSellerRoute = require("./routes/orderSellerRoutes");
 const couponRoutes = require("./routes/couponRoutes");
 const couponSellerRoutes = require("./routes/couponSellerRoutes");
 const verifySellerRoutes = require("./routes/verifySellerRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 
 require("./config/passport");
 
@@ -36,11 +38,18 @@ app.use(
   })
 );
 
+app.use(fileUpload({
+  createParentPath: true
+}));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use('/uploads', express.static('uploads'));
+
 app.use("/api/user", authRoute);
 app.use("/api/product", productRoute);
+app.use("/api/profile", profileRoutes)
 app.use(orderRoute);
 app.use(orderSellerRoute);
 app.use(couponRoutes);
