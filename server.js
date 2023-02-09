@@ -18,12 +18,10 @@ const orderRoute = require("./routes/orderRoutes");
 const orderSellerRoute = require("./routes/orderSellerRoutes");
 const couponRoutes = require("./routes/couponRoutes");
 const couponSellerRoutes = require("./routes/couponSellerRoutes");
-const verifySellerRoutes = require("./routes/verifySellerRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 
 require("./config/passport");
 
-app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -45,6 +43,8 @@ app.use(fileUpload({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(cors());
+
 app.use('/uploads', express.static('uploads'));
 
 app.use("/api/user", authRoute);
@@ -54,7 +54,23 @@ app.use(orderRoute);
 app.use(orderSellerRoute);
 app.use(couponRoutes);
 app.use(couponSellerRoutes);
-app.use(verifySellerRoutes);
+
+app.get("/login/success", (req, res) => {
+  if (req.user) {
+    res.status(200).json({
+      success: true,
+      message: "successfull",
+      user: req.user,
+    });
+  }
+});
+
+app.get("/login/failed", (req, res) => {
+  res.status(401).json({
+    success: false,
+    message: "failure",
+  });
+});
 
 // 設置 Google OAuth 認證路由
 app.get(
@@ -66,7 +82,7 @@ app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
     successRedirect: "http://localhost:3000/",
-    failureRedirect: "http://localhost:3000/login",
+    failureRedirect: "/login/failed",
   }),
   (req, res) => {
     req.session.member = req.user;
@@ -90,7 +106,7 @@ app.get(
   "/auth/facebook/callback",
   passport.authenticate("facebook", {
     successRedirect: "http://localhost:3000/",
-    failureRedirect: "http://localhost:3000/login",
+    failureRedirect: "/login/failed",
   }),
   (req, res) => {
     req.session.member = req.user;

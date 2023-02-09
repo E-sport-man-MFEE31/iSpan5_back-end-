@@ -36,10 +36,9 @@ const loginValidation = (data) => {
 
 const verifyValidation = (data) => {
   const schema = Joi.object({
-    user_id: Joi.string().max(50).required(),
     store_name: Joi.string().min(3).max(16).required(),
-    taxID: Joi.string().max(8).required(),
-    storeIntro:Joi.string().min(5).required(),
+    taxID: Joi.string().pattern(new RegExp("^[0-9]{8}$")).required(),
+    storeIntro: Joi.string().min(5).required(),
   });
   return schema.validate(data);
 };
